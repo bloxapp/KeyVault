@@ -26,6 +26,9 @@ type Wallet interface {
 	// Keep in mind ND wallets will probably not allow this function, use AddValidatorAccount.
 	CreateValidatorAccount(seed []byte, indexPointer *int) (ValidatorAccount, error)
 
+	// Create validator account from Private Key
+	CreateValidatorAccountFromPrivateKey(privateKey []byte, indexPointer *int) (ValidatorAccount, error)
+
 	// Used to specifically add an account.
 	// Keep in mind HD wallets will probably not allow this function, use CreateValidatorAccount.
 	AddValidatorAccount(account ValidatorAccount) error

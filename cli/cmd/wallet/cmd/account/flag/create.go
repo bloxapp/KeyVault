@@ -38,12 +38,23 @@ func ResponseTypeFromString(n string) ResponseType {
 const (
 	indexFlag            = "index"
 	seedFlag             = "seed"
+	privateKeyFlag       = "private-key"
 	accumulateFlag       = "accumulate"
 	responseTypeFlag     = "response-type"
 	highestKnownSource   = "highest-source"
 	highestKnownTarget   = "highest-target"
 	highestKnownProposal = "highest-proposal"
 )
+
+// AddPrivateKeyFlag adds private key to the command
+func AddPrivateKeyFlag(c *cobra.Command) {
+	cliflag.AddPersistentStringFlag(c, privateKeyFlag, "", "private key", false)
+}
+
+// GetPrivateKeyFlagValue returns the value of private key
+func GetPrivateKeyFlagValue(c *cobra.Command) (string, error) {
+	return c.Flags().GetString(privateKeyFlag)
+}
 
 // AddIndexFlag adds the index flag to the command
 func AddIndexFlag(c *cobra.Command) {
@@ -82,7 +93,7 @@ func GetResponseTypeFlagValue(c *cobra.Command) (ResponseType, error) {
 
 // AddSeedFlag adds the seed flag to the command
 func AddSeedFlag(c *cobra.Command) {
-	cliflag.AddPersistentStringFlag(c, seedFlag, "", "key-vault seed", true)
+	cliflag.AddPersistentStringFlag(c, seedFlag, "", "key-vault seed", false)
 }
 
 // GetSeedFlagValue gets the seed flag from the command

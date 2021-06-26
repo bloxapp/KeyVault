@@ -53,9 +53,9 @@ func TestAccountMarshaling(t *testing.T) {
 			// create key and account
 			masterKey, err := core.MasterKeyFromSeed(test.seed, core.PraterNetwork)
 			require.NoError(t, err)
-			validationKey, err := masterKey.Derive(fmt.Sprintf("/%s/0/0", test.accountIndex))
+			validationKey, err := masterKey.Derive(fmt.Sprintf("/%s/0/0", test.accountIndex), false)
 			require.NoError(t, err)
-			withdrawalKey, err := masterKey.Derive(fmt.Sprintf("/%s/0", test.accountIndex))
+			withdrawalKey, err := masterKey.Derive(fmt.Sprintf("/%s/0", test.accountIndex), false)
 			require.NoError(t, err)
 			a := &HDAccount{
 				//accountType:test.accountType,

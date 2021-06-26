@@ -60,6 +60,11 @@ func (wallet *Wallet) CreateValidatorAccount(_ []byte, _ *int) (core.ValidatorAc
 	return nil, errors.Errorf("non deterministic wallet can't create validator, please use AddValidatorAccount")
 }
 
+// CreateValidatorAccountFromPrivateKey creates a new validation (validator) key pair in the wallet.
+func (wallet *Wallet) CreateValidatorAccountFromPrivateKey(_ []byte, _ *int) (core.ValidatorAccount, error) {
+	return nil, errors.Errorf("non deterministic wallet can't create validator, please use AddValidatorAccount")
+}
+
 // AddValidatorAccount adds the given account
 func (wallet *Wallet) AddValidatorAccount(account core.ValidatorAccount) error {
 	validatorPublicKey := hex.EncodeToString(account.ValidatorPublicKey())

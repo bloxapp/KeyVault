@@ -64,8 +64,8 @@ func (wallet *Wallet) GetNextAccountIndex() int {
 	return int(index) + 1
 }
 
-// CreateValidatorAccount creates a new validation (validator) key pair in the wallet.
-func (wallet *Wallet) CreateValidatorAccount(seed []byte, indexPointer *int) (core.ValidatorAccount, error) {
+// BuildValidatorAccount using pointer and constructed key, using seedless or seed modes
+func (wallet *Wallet) BuildValidatorAccount(indexPointer *int, key *core.MasterDerivableKey, seedless bool) (*wallets.HDAccount, error) {
 	// Resolve index to create account at
 	var index int
 	if indexPointer != nil {
@@ -75,24 +75,18 @@ func (wallet *Wallet) CreateValidatorAccount(seed []byte, indexPointer *int) (co
 	}
 	name := fmt.Sprintf("account-%d", index)
 
-	// Create the master key based on the seed and network.
-	key, err := core.MasterKeyFromSeed(seed, wallet.context.Storage.Network())
-	if err != nil {
-		return nil, err
-	}
-
 	baseAccountPath := fmt.Sprintf(BaseAccountPath, index)
 
 	// Create validator key
 	validatorPath := fmt.Sprintf(ValidatorKeyPath, index)
-	validatorKey, err := key.Derive(validatorPath)
+	validatorKey, err := key.Derive(validatorPath, seedless)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create withdrawal key
 	withdrawalPath := fmt.Sprintf(WithdrawalKeyPath, index)
-	withdrawalKey, err := key.Derive(withdrawalPath)
+	withdrawalKey, err := key.Derive(withdrawalPath, seedless)
 	if err != nil {
 		return nil, err
 	}
@@ -130,9 +124,55 @@ func (wallet *Wallet) CreateValidatorAccount(seed []byte, indexPointer *int) (co
 	return ret, nil
 }
 
+// CreateValidatorAccountFromPrivateKey creates account having only private key
+func (wallet *Wallet) CreateValidatorAccountFromPrivateKey(privateKey []byte, indexPointer *int) (core.ValidatorAccount, error) {
+	// Create the master key based on the private key and network.
+	key, err := core.MasterKeyFromPrivateKey(privateKey, wallet.context.Storage.Network())
+	if err != nil {
+		return nil, err
+	}
+
+	// Build account
+	account, err := wallet.BuildValidatorAccount(indexPointer, key, true)
+	if err != nil {
+		return nil, err
+	}
+	return account, nil
+}
+
+// CreateValidatorAccount creates a new validation (validator) key pair in the wallet.
+func (wallet *Wallet) CreateValidatorAccount(seed []byte, indexPointer *int) (core.ValidatorAccount, error) {
+	// Create the master key based on the seed and network.
+	key, err := core.MasterKeyFromSeed(seed, wallet.context.Storage.Network())
+	if err != nil {
+		return nil, err
+	}
+
+	// Build account
+	account, err := wallet.BuildValidatorAccount(indexPointer, key, false)
+	if err != nil {
+		return nil, err
+	}
+	return account, nil
+}
+
 // AddValidatorAccount returns error
-func (wallet *Wallet) AddValidatorAccount(_ core.ValidatorAccount) error {
-	return errors.Errorf("hierarchical deterministic wallets can't add a validator they need too derive it, please use CreateValidatorAccount")
+func (wallet *Wallet) AddValidatorAccount(account core.ValidatorAccount) error {
+	validatorPublicKey := hex.EncodeToString(account.ValidatorPublicKey())
+	wallet.indexMapper[validatorPublicKey] = account.ID()
+
+	// Store account
+	if err := wallet.context.Storage.SaveAccount(account); err != nil {
+		return err
+	}
+
+	// Store wallet
+	err := wallet.context.Storage.SaveWallet(wallet)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // DeleteAccountByPublicKey deletes account by the given public key

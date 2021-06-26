@@ -64,7 +64,7 @@ func TestMarshalingHDKey(t *testing.T) {
 			key, err := MasterKeyFromSeed(test.seed, PraterNetwork)
 			require.NoError(t, err)
 
-			hdKey, err := key.Derive(test.path)
+			hdKey, err := key.Derive(test.path, false)
 			if test.err != nil {
 				require.EqualError(t, test.err, err.Error())
 				return
@@ -192,7 +192,7 @@ func TestDerivableKeyRelativePathDerivation(t *testing.T) {
 			key, err := MasterKeyFromSeed(test.seed, MainNetwork)
 			require.NoError(t, err)
 
-			hdKey, err := key.Derive(test.path)
+			hdKey, err := key.Derive(test.path, false)
 			if err != nil {
 				if test.err != nil {
 					require.Equal(t, test.err.Error(), err.Error())

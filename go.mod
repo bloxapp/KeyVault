@@ -14,6 +14,7 @@ require (
 	github.com/spf13/cobra v1.0.0
 	github.com/stretchr/testify v1.6.1
 	github.com/tyler-smith/go-bip39 v1.0.2
+	github.com/wealdtech/go-eth2-types/v2 v2.5.1 // indirect
 	github.com/wealdtech/go-eth2-util v1.6.2
 	golang.org/x/crypto v0.0.0-20201208171446-5f87f3452ae9
 	golang.org/x/text v0.3.4
